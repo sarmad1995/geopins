@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import ReactMapGL, { NavigationControl, Marker } from 'react-map-gl';
 import { MAP_BOX_KEY } from '../config';
 import PinIcon from './PinIcon';
+import Context from '../context';
 // import Button from "@material-ui/core/Button";
 // import Typography from "@material-ui/core/Typography";
 // import DeleteIcon from "@material-ui/icons/DeleteTwoTone";
@@ -12,11 +13,15 @@ const INITIAL_VIEWPORT = {
   zoom: 13
 };
 const Map = ({ classes }) => {
+  const { state, dispatch } = useContext(Context);
   const [viewPort, setViewPort] = useState(INITIAL_VIEWPORT);
   const [userPosition, setUserPosition] = useState(null);
   useEffect(() => {
     getUserPosition();
   }, []);
+  console.log({ userPosition });
+  console.log({ draft: state.draft });
+
   const getUserPosition = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(({ coords }) => {
@@ -26,6 +31,18 @@ const Map = ({ classes }) => {
       });
     }
   };
+  const handleMapClick = ({ lngLat, leftButton }) => {
+    console.log('clicked');
+    if (!leftButton) return;
+    if (!state.draft) {
+      dispatch({ type: 'CREATE_DRAFT' });
+    }
+    const [longitude, latitude] = lngLat;
+    dispatch({
+      type: 'UPDATE_DRAFT_LOCATION',
+      payload: { latitude, longitude }
+    });
+  };
   return (
     <div className={classes.root}>
       <ReactMapGL
@@ -34,6 +51,7 @@ const Map = ({ classes }) => {
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxApiAccessToken={MAP_BOX_KEY}
         onViewportChange={newViewPort => setViewPort(newViewPort)}
+        onClick={handleMapClick}
         {...viewPort}
       >
         {/* Navigation Control */}
@@ -44,6 +62,12 @@ const Map = ({ classes }) => {
         {userPosition && (
           <Marker offsetLeft={-19} offsetTop={-37} {...userPosition}>
             <PinIcon size={40} color="red" />
+          </Marker>
+        )}
+        {/* draft pin */}
+        {state.draft && (
+          <Marker offsetLeft={-19} offsetTop={-37} {...state.draft}>
+            <PinIcon size={40} color="blue" />
           </Marker>
         )}
       </ReactMapGL>

@@ -1,30 +1,49 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { GraphQLClient } from 'graphql-request';
 import { GoogleLogin } from 'react-google-login';
 import { withStyles } from '@material-ui/core/styles';
 import { OAUTH_CLIENT_ID, API_ENDPOINT } from '../../config';
-// import Typography from "@material-ui/core/Typography";
+import Typography from '@material-ui/core/Typography';
+import Context from '../../context';
+import { ME_QUERY } from '../../graphql/queries';
 
-const ME_QUERY = `
-{
-  me {
-    _id
-    name
-    email
-    picture
-  }
-}
-`;
 const Login = ({ classes }) => {
+  const { dispatch } = useContext(Context);
   const onSuccess = async googleUser => {
-    const idToken = googleUser.getAuthResponse().id_token;
-    const client = new GraphQLClient(`${API_ENDPOINT}/graphql`, {
-      headers: { authorization: idToken }
-    });
-    const data = await client.request(ME_QUERY);
-    console.log({ data });
+    try {
+      const idToken = googleUser.getAuthResponse().id_token;
+      const client = new GraphQLClient(`${API_ENDPOINT}/graphql`, {
+        headers: { authorization: idToken }
+      });
+      const { me } = await client.request(ME_QUERY);
+      dispatch({ type: 'LOGIN_USER', payload: me });
+    } catch (e) {
+      onFailure(e);
+    }
   };
-  return <GoogleLogin isSignedIn onSuccess={onSuccess} clientId={OAUTH_CLIENT_ID} />;
+  const onFailure = err => {
+    console.error(err);
+  };
+  return (
+    <div className={classes.root}>
+      <Typography
+        component="h1"
+        variant="h3"
+        gutterBottom
+        noWrap
+        style={{ color: 'rgb(66,133,244)' }}
+      >
+        Welcome
+      </Typography>
+      <GoogleLogin
+        theme="dark"
+        onFailure={onFailure}
+        isSignedIn
+        onSuccess={onSuccess}
+        clientId={OAUTH_CLIENT_ID}
+      />
+    </div>
+  );
 };
 
 const styles = {

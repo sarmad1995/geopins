@@ -1,46 +1,48 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import ReactMapGL, { NavigationControl, Marker } from 'react-map-gl';
-import { MAP_BOX_KEY } from '../config';
+import React, {useState, useEffect, useContext} from 'react';
+import {withStyles} from '@material-ui/core/styles';
+import ReactMapGL, {NavigationControl, Marker} from 'react-map-gl';
+
+import {MAP_BOX_KEY} from '../config';
 import PinIcon from './PinIcon';
 import Context from '../context';
+import Blog from './Blog';
 // import Button from "@material-ui/core/Button";
 // import Typography from "@material-ui/core/Typography";
 // import DeleteIcon from "@material-ui/icons/DeleteTwoTone";
 const INITIAL_VIEWPORT = {
   latitude: 30.698972,
   longitude: 76.843102,
-  zoom: 13
+  zoom: 13,
 };
-const Map = ({ classes }) => {
-  const { state, dispatch } = useContext(Context);
-  const [viewPort, setViewPort] = useState(INITIAL_VIEWPORT);
-  const [userPosition, setUserPosition] = useState(null);
-  useEffect(() => {
-    getUserPosition();
+const Map = ({classes}) => {
+  const {state, dispatch} = useContext (Context);
+  const [viewPort, setViewPort] = useState (INITIAL_VIEWPORT);
+  const [userPosition, setUserPosition] = useState (null);
+  useEffect (() => {
+    getUserPosition ();
   }, []);
-  console.log({ userPosition });
-  console.log({ draft: state.draft });
+  console.log ({userPosition});
+  console.log ({draft: state.draft});
 
   const getUserPosition = () => {
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        const { latitude, longitude } = coords;
-        setViewPort({ ...viewPort, latitude, longitude });
-        setUserPosition({ latitude, longitude });
+      navigator.geolocation.getCurrentPosition (({coords}) => {
+        const {latitude, longitude} = coords;
+        setViewPort ({...viewPort, latitude, longitude});
+        setUserPosition ({latitude, longitude});
       });
     }
   };
-  const handleMapClick = ({ lngLat, leftButton }) => {
-    console.log('clicked');
+  const handleMapClick = ({lngLat, leftButton}) => {
+    console.log ('clicked');
     if (!leftButton) return;
     if (!state.draft) {
-      dispatch({ type: 'CREATE_DRAFT' });
+      dispatch ({type: 'CREATE_DRAFT'});
     }
     const [longitude, latitude] = lngLat;
-    dispatch({
+    dispatch ({
       type: 'UPDATE_DRAFT_LOCATION',
-      payload: { latitude, longitude }
+      payload: {latitude, longitude},
     });
   };
   return (
@@ -50,60 +52,62 @@ const Map = ({ classes }) => {
         height="calc(100vh - 64px)"
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxApiAccessToken={MAP_BOX_KEY}
-        onViewportChange={newViewPort => setViewPort(newViewPort)}
+        onViewportChange={newViewPort => setViewPort (newViewPort)}
         onClick={handleMapClick}
         {...viewPort}
       >
         {/* Navigation Control */}
         <div className={classes.navigationControl}>
-          <NavigationControl onViewportChange={newViewPort => setViewPort(newViewPort)} />
+          <NavigationControl
+            onViewportChange={newViewPort => setViewPort (newViewPort)}
+          />
         </div>
         {/* Pin for users current location */}
-        {userPosition && (
+        {userPosition &&
           <Marker offsetLeft={-19} offsetTop={-37} {...userPosition}>
             <PinIcon size={40} color="red" />
-          </Marker>
-        )}
+          </Marker>}
         {/* draft pin */}
-        {state.draft && (
+        {state.draft &&
           <Marker offsetLeft={-19} offsetTop={-37} {...state.draft}>
-            <PinIcon size={40} color="blue" />
-          </Marker>
-        )}
+            <PinIcon size={40} color="hotpink" />
+          </Marker>}
       </ReactMapGL>
+      {/* Blog area to add pin content */}
+      <Blog />
     </div>
   );
 };
 
 const styles = {
   root: {
-    display: 'flex'
+    display: 'flex',
   },
   rootMobile: {
     display: 'flex',
-    flexDirection: 'column-reverse'
+    flexDirection: 'column-reverse',
   },
   navigationControl: {
     position: 'absolute',
     top: 0,
     left: 0,
-    margin: '1em'
+    margin: '1em',
   },
   deleteIcon: {
-    color: 'red'
+    color: 'red',
   },
   popupImage: {
     padding: '0.4em',
     height: 200,
     width: 200,
-    objectFit: 'cover'
+    objectFit: 'cover',
   },
   popupTab: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'column'
-  }
+    flexDirection: 'column',
+  },
 };
 
-export default withStyles(styles)(Map);
+export default withStyles (styles) (Map);

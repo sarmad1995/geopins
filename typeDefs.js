@@ -1,4 +1,4 @@
-const { gql } = require('apollo-server');
+const {gql} = require ('apollo-server');
 
 module.exports = gql`
   type User {
@@ -23,8 +23,18 @@ module.exports = gql`
     createdAt: String
     author: User
   }
+  input CreatePinInput {
+    title: String
+    image: String
+    content: String
+    latitude: Float
+    longitude: Float
+  }
 
   type Query {
     me: User
+  }
+  type Mutation {
+    createPin(input: CreatePinInput!): Pin
   }
 `;

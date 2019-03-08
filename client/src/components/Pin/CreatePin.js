@@ -1,5 +1,7 @@
 import React, {useState, useContext} from 'react';
+import {GraphQLClient} from 'graphql-request';
 import axios from 'axios';
+import {CREATE_PIN_MUTATION} from '../../graphql/mutations';
 import {withStyles} from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
@@ -9,12 +11,14 @@ import LandscapeIcon from '@material-ui/icons/LandscapeOutlined';
 import ClearIcon from '@material-ui/icons/Clear';
 import SaveIcon from '@material-ui/icons/SaveTwoTone';
 import Context from '../../context';
+import {API_ENDPOINT} from '../../config';
 
 const CreatePin = ({classes}) => {
-  const {dispatch} = useContext (Context);
+  const {state, dispatch} = useContext (Context);
   const [title, setTitle] = useState ('');
   const [image, setImage] = useState ('');
   const [content, setContent] = useState ('');
+  const [submitting, setSubmitting] = useState (false);
   const handleDeleteDraft = () => {
     setTitle ('');
     setImage ('');
@@ -37,9 +41,30 @@ const CreatePin = ({classes}) => {
     }
   };
   const handleSubmit = async e => {
-    e.preventDefault ();
-    const url = await handleImageUpload ();
-    console.log ({title, image, content, url});
+    try {
+      setSubmitting (true);
+      e.preventDefault ();
+      const idToken = window.gapi.auth2
+        .getAuthInstance ()
+        .currentUser.get ()
+        .getAuthResponse ().id_token;
+      const client = new GraphQLClient (`${API_ENDPOINT}/graphql`, {
+        headers: {
+          authorization: idToken,
+        },
+      });
+      const url = await handleImageUpload ();
+      const {latitude, longitude} = state.draft;
+      const variables = {title, image: url, content, latitude, longitude};
+      console.log (variables);
+      const {createPin} = await client.request (CREATE_PIN_MUTATION, variables);
+      console.log ({createPin});
+      setSubmitting (false);
+      handleDeleteDraft ();
+    } catch (e) {
+      setSubmitting (false);
+      console.error (e);
+    }
   };
   return (
     <form className={classes.form}>
@@ -100,7 +125,7 @@ const CreatePin = ({classes}) => {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={!title.trim () || !content.trim () || !image}
+          disabled={!title.trim () || !content.trim () || !image || submitting}
           type="submit"
           className={classes.button}
           variant="contained"

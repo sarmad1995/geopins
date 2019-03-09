@@ -1,8 +1,9 @@
-import { createContext } from 'react';
-const Context = createContext({
+import {createContext} from 'react';
+const Context = createContext ({
   currentUser: null,
   isAuth: false,
-  draft: null
+  draft: null,
+  pins: [],
 });
 
 export default Context;

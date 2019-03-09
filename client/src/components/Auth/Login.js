@@ -1,29 +1,29 @@
-import React, { useContext } from 'react';
-import { GraphQLClient } from 'graphql-request';
-import { GoogleLogin } from 'react-google-login';
-import { withStyles } from '@material-ui/core/styles';
-import { OAUTH_CLIENT_ID, API_ENDPOINT } from '../../config';
+import React, {useContext} from 'react';
+import {GraphQLClient} from 'graphql-request';
+import {GoogleLogin} from 'react-google-login';
+import {withStyles} from '@material-ui/core/styles';
+import {OAUTH_CLIENT_ID, API_ENDPOINT} from '../../config';
 import Typography from '@material-ui/core/Typography';
 import Context from '../../context';
-import { ME_QUERY } from '../../graphql/queries';
-
-const Login = ({ classes }) => {
-  const { dispatch } = useContext(Context);
+import {ME_QUERY} from '../../graphql/queries';
+import {BASE_URL} from '../../client';
+const Login = ({classes}) => {
+  const {dispatch} = useContext (Context);
   const onSuccess = async googleUser => {
     try {
-      const idToken = googleUser.getAuthResponse().id_token;
-      const client = new GraphQLClient(`${API_ENDPOINT}/graphql`, {
-        headers: { authorization: idToken }
+      const idToken = googleUser.getAuthResponse ().id_token;
+      const client = new GraphQLClient (`${BASE_URL}/graphql`, {
+        headers: {authorization: idToken},
       });
-      const { me } = await client.request(ME_QUERY);
-      dispatch({ type: 'LOGIN_USER', payload: me });
-      dispatch({ type: 'IS_LOGGED_IN', payload: googleUser.isSignedIn() });
+      const {me} = await client.request (ME_QUERY);
+      dispatch ({type: 'LOGIN_USER', payload: me});
+      dispatch ({type: 'IS_LOGGED_IN', payload: googleUser.isSignedIn ()});
     } catch (e) {
-      onFailure(e);
+      onFailure (e);
     }
   };
   const onFailure = err => {
-    console.error(err);
+    console.error (err);
   };
   return (
     <div className={classes.root}>
@@ -32,7 +32,7 @@ const Login = ({ classes }) => {
         variant="h3"
         gutterBottom
         noWrap
-        style={{ color: 'rgb(66,133,244)' }}
+        style={{color: 'rgb(66,133,244)'}}
       >
         Welcome
       </Typography>
@@ -54,8 +54,8 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     flexDirection: 'column',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 };
 
-export default withStyles(styles)(Login);
+export default withStyles (styles) (Login);

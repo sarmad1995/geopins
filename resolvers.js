@@ -31,5 +31,9 @@ module.exports = {
         throw new Error (e.message);
       }
     }),
+    deletePin: authenticated (async (root, args, context) => {
+      const pinDeleted = await Pin.findOneAndDelete ({_id: args.pinId}).exec ();
+      return pinDeleted;
+    }),
   },
 };

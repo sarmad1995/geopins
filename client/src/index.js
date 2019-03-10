@@ -16,7 +16,7 @@ import * as serviceWorker from './serviceWorker';
 import { DOMAIN } from './config';
 console.log(process.env.NODE_ENV);
 const wsLink = new WebSocketLink({
-  uri: `ws://${DOMAIN}/graphql`,
+  uri: `wss://${DOMAIN}/graphql`,
   options: {
     reconnect: true
   }

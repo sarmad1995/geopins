@@ -13,10 +13,10 @@ import { ApolloClient } from 'apollo-client';
 import { WebSocketLink } from 'apollo-link-ws';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import * as serviceWorker from './serviceWorker';
-import { DOMAIN } from './config';
+import { WEBSOCKETURL } from './config';
 console.log(process.env.NODE_ENV);
 const wsLink = new WebSocketLink({
-  uri: `wss://${DOMAIN}/graphql`,
+  uri: `${WEBSOCKETURL}/graphql`,
   options: {
     reconnect: true
   }

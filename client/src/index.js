@@ -1,6 +1,6 @@
-import React, {useContext, useReducer} from 'react';
+import React, { useContext, useReducer } from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import App from './pages/App';
 import Splash from './pages/Splash';
@@ -8,32 +8,32 @@ import Context from './context';
 import reducer from './reducer';
 import ProtectedRoute from './ProtectedRoute';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {ApolloProvider} from 'react-apollo';
-import {ApolloClient} from 'apollo-client';
-import {WebSocketLink} from 'apollo-link-ws';
-import {InMemoryCache} from 'apollo-cache-inmemory';
+import { ApolloProvider } from 'react-apollo';
+import { ApolloClient } from 'apollo-client';
+import { WebSocketLink } from 'apollo-link-ws';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 import * as serviceWorker from './serviceWorker';
 
-const wsLink = new WebSocketLink ({
+const wsLink = new WebSocketLink({
   uri: 'ws://localhost:4000/graphql',
   options: {
-    reconnect: true,
-  },
+    reconnect: true
+  }
 });
-const client = new ApolloClient ({
+const client = new ApolloClient({
   link: wsLink,
-  cache: new InMemoryCache (),
+  cache: new InMemoryCache()
 });
 
 const Root = () => {
-  const initialState = useContext (Context);
-  const [state, dispatch] = useReducer (reducer, initialState);
+  const initialState = useContext(Context);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  console.log (state);
+  console.log(state);
   return (
     <Router>
       <ApolloProvider client={client}>
-        <Context.Provider value={{state, dispatch}}>
+        <Context.Provider value={{ state, dispatch }}>
           <Switch>
             <ProtectedRoute exact path="/" component={App} />
             <Route path="/login" component={Splash} />
@@ -44,9 +44,9 @@ const Root = () => {
   );
 };
 
-ReactDOM.render (<Root />, document.getElementById ('root'));
+ReactDOM.render(<Root />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister ();
+serviceWorker.unregister();

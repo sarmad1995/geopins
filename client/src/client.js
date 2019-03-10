@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GraphQLClient } from 'graphql-request';
-import { API_ENDPOINT } from './config';
-export const BASE_URL =
-  process.env.NODE_ENV === 'production' ? '<insert-productionurl>' : API_ENDPOINT;
+export const BASE_URL = process.env.NODE_ENV === 'production' ? '' : '';
 
 export const useClient = () => {
   const [idToken, setIdToken] = useState('');
